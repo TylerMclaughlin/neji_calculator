@@ -102,10 +102,11 @@ def get_neji(edo_list, generators, print_all_approx = False, nudge_degree = None
 
     final_cents = []
     for i, best_ix in enumerate(best_degree_approx_indices):
+        neji_degree = edo_degree[best_ix]
         if nudge_degree is None or nudge_degree != i:
             # STANDARD PRINTING AND APPENDING, NO NUDGING
             final_cents.append(best_matches[best_ix])
-            print(pad(edo_degree[best_ix], max_len_degree), pad(best_fractions[best_ix],max_len_frac), pad(decimal(best_matches[best_ix]), max_len_cents), pad(decimal(best_errors[best_ix]),max_len_cents))
+            print(pad(neji_degree, max_len_degree), pad(best_fractions[best_ix],max_len_frac), pad(decimal(best_matches[best_ix]), max_len_cents), pad(decimal(best_errors[best_ix]),max_len_cents))
         # ATTEMPT TO NUDGE
         else:  # else nudge degree matches this edo degree.
             # because denoms is sorted, we can use denom as the largest denominator which is the largest generator product.
@@ -120,7 +121,8 @@ def get_neji(edo_list, generators, print_all_approx = False, nudge_degree = None
             else: # COMMITING NUDGED INTERVAL TO DATA   
                 nudged_cents = cents_from_interval(nudged_fraction.numerator, nudged_fraction.denominator)
                 final_cents.append(nudged_cents)
-                print(pad(edo_degree[best_ix], max_len_degree), pad(nudged_fraction, max_len_frac), pad(decimal(nudged_cents), max_len_cents), pad(decimal(best_errors[best_ix]), max_len_cents),\
+                nudged_error = nudged_cents - edo_list[neji_degree]
+                print(pad(neji_degree, max_len_degree), pad(nudged_fraction, max_len_frac), pad(decimal(nudged_cents), max_len_cents), pad(decimal(nudged_error), max_len_cents),\
                         f'(raised by {Fraction(nudge_by, denom)})' )
     return final_cents
 
