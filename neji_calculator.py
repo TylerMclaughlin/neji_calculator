@@ -30,28 +30,37 @@ def expand_generators(generators):
     return [np.prod(x) for x in powerset(generators) if x != ()]
     
 
-def get_neji(edo_list, generators, print_all_approx = False): 
+def decimal(number):
+    """
+    Rounds string version of int to 6 decimal places for printing.
+    """
+    return "{:.6f}".format(number)
+
+def get_neji(edo_list, generators, print_all_approx = False, nudge_degree = None, nudge_by = 0): 
     """
     argument edo_list is a collection of notes (cents).
     generators is a list of numbers, usually primes.
     """
-    denoms = expand_generators(generators)
+    denoms = sorted(expand_generators(generators))
     # I'm intentionally not using Pandas for this one;
     # trying to keep the dependency list small.
+    # I'd love to use data tables instead of lists for this,
+    # it would make things nicer to read,
+    # but i don't want the Pandas installation to prevent people from using my code! 
     edo_degree = []
     best_fractions = []
     best_matches = []
     best_errors = []
     for i, target_cents in enumerate(edo_list):
         best_num_for_denom = {}  # denom : best_numerator.
-        for d in denoms:
-            num = round(find_numerator(target_cents, d))
-            neji_cents = cents_from_interval(num, d)
+        for denom in denoms:
+            num = round(find_numerator(target_cents, denom))
+            neji_cents = cents_from_interval(num, denom)
             error = neji_cents - target_cents 
             edo_degree.append(i)
             best_matches.append(neji_cents)
             best_errors.append(error)
-            best_fractions.append(Fraction(num, d))
+            best_fractions.append(Fraction(num, denom))
 
     if print_all_approx: # print all approximations rather than just the best ones.
         for i, d in enumerate(edo_degree):
@@ -78,11 +87,27 @@ def get_neji(edo_list, generators, print_all_approx = False):
                 best_index = candidate_degree_approx_index
         best_degree_approx_indices.append(best_index)
 
-    #print(best_degree_approx_indices)
     final_cents = []
-    for ix in best_degree_approx_indices:
-        final_cents.append(best_matches[ix])
-        print(edo_degree[ix], best_fractions[ix], best_matches[ix], best_errors[ix])
+    for i, best_ix in enumerate(best_degree_approx_indices):
+        if nudge_degree is None or nudge_degree != i:
+            # STANDARD PRINTING AND APPENDING, NO NUDGING
+            final_cents.append(best_matches[best_ix])
+            print(edo_degree[best_ix], best_fractions[best_ix], decimal(best_matches[best_ix]), decimal(best_errors[best_ix]))
+        # ATTEMPT TO NUDGE
+        else:  # else nudge degree matches this edo degree.
+            # because denoms is sorted, we can use denom as the largest denominator which is the largest generator product.
+            nudged_fraction = best_fractions[best_ix] + Fraction(nudge_by, denom) 
+            # make sure the nudged note doesn't overshoot or undershoot a neighboring note.
+            if (nudge_by >= 0) and (nudged_fraction >= best_fractions[best_degree_approx_indices[i +1]]):
+                raise ValueError(f'The amount you nudged degree {nudge_degree} will make it equal to or exceed neighboring degree {nudge_degree + 1}.  ' + \
+                        'Please decrease the nudge by argument via "-b" or "--by".')
+            elif (nudge_by < 0) and (nudged_fraction <= best_fractions[best_degree_approx_indices[i -1]]):
+                raise ValueError(f'The amount you nudged degree {nudge_degree}  will make it less than or equal to neighboring degree {nudge_degree - 1}.  ' + \
+                        'Please increase the nudge by argument via "-b" or "--by".')
+            else: # COMMITING NUDGED INTERVAL TO DATA   
+                nudged_cents = cents_from_interval(nudged_fraction.numerator, nudged_fraction.denominator)
+                final_cents.append(nudged_cents)
+                print(edo_degree[best_ix], nudged_fraction, decimal(nudged_cents), decimal(best_errors[best_ix]), f'(raised by {Fraction(nudge_by, denom)})' )
     return final_cents
 
 def write_scala(name, cents_list):
@@ -91,7 +116,7 @@ def write_scala(name, cents_list):
     cents_list is a list of cents that starts at 0 and ends at 1200.  There is no 0 in the .scl file. 
     """
     filename = name + '.scl'
-    file_string = f'! {filename}\n! Created using R. Tyler\'s neji calculator\n!\n{name}\n'
+    file_string = f'! {filename}\n! Created using r tyler\'s neji calculator\n!\n{name}\n'
     file_string += f' {len(cents_list) - 1}\n!\n' # space here is intentional.
     cents_rows =  '\n '.join([str(cent) for cent in cents_list[1:]]) # scl format doesn't have the 0.
     file_string += f' {cents_rows}'
@@ -99,12 +124,23 @@ def write_scala(name, cents_list):
        f.write(file_string)
 
 if __name__ == '__main__':
-    from sys import argv
-    n_edo = argv[1] 
-    generators = [int(g) for g in argv[2].split(',')] 
-    name = argv[3] 
-    print(n_edo, generators, name)
-    neji_cents_list = get_neji(cents_from_edo(int(n_edo)), generators)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("n_edo", help="Number of divisions per octave.", type = int)
+    parser.add_argument("generator_string", help="Comma-separated list of generators:  integers whose combinations of products are eligible for denominator.", type = str)
+    parser.add_argument("name", help="Name for the output .scl file.  Use underscores instead of spaces.", type = str)
+    parser.add_argument("-n","--nudge", help="Tuning degree to nudge. Counting starts at zero.", type = int)
+    parser.add_argument("-b","--by", help="Amount to nudge by. Increments of 1 divided by the largest generator product. May be negative", default = 0, type = int)
+    args = parser.parse_args()
+    if args.nudge is not None 
+        if args.nudge > args.n_edo:
+            raise ValueError("The degree that gets nudged must be less than the specified N-EDO.")
+        elif args.nudge == 0:
+            print(f'Warning, you are nudging degree 0 of the scale. This is not supported right now! ')
+    n_edo = args.n_edo 
+    generators = [int(g) for g in args.generator_string.split(',')] 
+    name = args.name 
+    print(f'N-EDO: {n_edo}, Generators: {generators}, Filename: {name}')
+    print('degree, ratio, cents, error (cents from EDO)')
+    neji_cents_list = get_neji(cents_from_edo(int(n_edo)), generators, nudge_degree = args.nudge, nudge_by = args.by)
     write_scala(name = name, cents_list = neji_cents_list)
- 
-    
