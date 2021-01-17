@@ -44,11 +44,12 @@ degree, ratio, cents, error (cents from EDO)
 ```
 ## Nudging degree in the scale.
 
-Nudging or tweaking a degree in the tuning can be useful for balancing or centering the tuning.  The following example is taken from Zhea Erose's 'Eurybia',  which uses 12-note undecimal tuning and has a raised fourth.  To nudge, specify the degree you wish to nudge (5 in this example) and by how much.  
+Nudging or tweaking a degree in the tuning can be useful for balancing or centering the tuning.  The following example is taken from [Zhea Erose's 'Eurybia'](https://www.youtube.com/watch?v=ubPwKxcp87g),  which uses 12-note undecimal tuning and has a raised fourth.  To nudge, specify the degree you wish to nudge (5 in this example) and by how much.  
 
 ```bash
 python neji_calculator.py 12 2,11 eurybia --nudge 5 --by 1
 ```
+
 writes the Scala file **eurybia.scl** and prints the following output:
 
 ```
