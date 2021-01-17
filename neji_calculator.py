@@ -36,6 +36,13 @@ def decimal(number):
     """
     return "{:.6f}".format(number)
 
+def pad(string, max_len):
+    """
+    add some leading spaces to string to bring it up to max_len.
+    """
+    string = str(string)
+    return " "*(max_len - len(string)) + string
+
 def get_neji(edo_list, generators, print_all_approx = False, nudge_degree = None, nudge_by = 0): 
     """
     argument edo_list is a collection of notes (cents).
@@ -61,6 +68,12 @@ def get_neji(edo_list, generators, print_all_approx = False, nudge_degree = None
             best_matches.append(neji_cents)
             best_errors.append(error)
             best_fractions.append(Fraction(num, denom))
+
+
+    # get max len for different substrings of the print out
+    max_len_degree = len(str(len(edo_list) - 1))
+    max_len_frac = len(str(denoms[-1]*2)) + 1 + len(str(denoms[-1])) # use the biggest generator to get the maximum size of the fraction
+    max_len_cents = 4 + 1 + 6 # 4 spaces for 1200, 1 for the decimal point, and 6 for the trailing decimal places.
 
     if print_all_approx: # print all approximations rather than just the best ones.
         for i, d in enumerate(edo_degree):
@@ -92,7 +105,7 @@ def get_neji(edo_list, generators, print_all_approx = False, nudge_degree = None
         if nudge_degree is None or nudge_degree != i:
             # STANDARD PRINTING AND APPENDING, NO NUDGING
             final_cents.append(best_matches[best_ix])
-            print(edo_degree[best_ix], best_fractions[best_ix], decimal(best_matches[best_ix]), decimal(best_errors[best_ix]))
+            print(pad(edo_degree[best_ix], max_len_degree), pad(best_fractions[best_ix],max_len_frac), pad(decimal(best_matches[best_ix]), max_len_cents), pad(decimal(best_errors[best_ix]),max_len_cents))
         # ATTEMPT TO NUDGE
         else:  # else nudge degree matches this edo degree.
             # because denoms is sorted, we can use denom as the largest denominator which is the largest generator product.
@@ -107,7 +120,8 @@ def get_neji(edo_list, generators, print_all_approx = False, nudge_degree = None
             else: # COMMITING NUDGED INTERVAL TO DATA   
                 nudged_cents = cents_from_interval(nudged_fraction.numerator, nudged_fraction.denominator)
                 final_cents.append(nudged_cents)
-                print(edo_degree[best_ix], nudged_fraction, decimal(nudged_cents), decimal(best_errors[best_ix]), f'(raised by {Fraction(nudge_by, denom)})' )
+                print(pad(edo_degree[best_ix], max_len_degree), pad(nudged_fraction, max_len_frac), pad(decimal(nudged_cents), max_len_cents), pad(decimal(best_errors[best_ix]), max_len_cents),\
+                        f'(raised by {Fraction(nudge_by, denom)})' )
     return final_cents
 
 def write_scala(name, cents_list):
@@ -132,7 +146,7 @@ if __name__ == '__main__':
     parser.add_argument("-n","--nudge", help="Tuning degree to nudge. Counting starts at zero.", type = int)
     parser.add_argument("-b","--by", help="Amount to nudge by. Increments of 1 divided by the largest generator product. May be negative", default = 0, type = int)
     args = parser.parse_args()
-    if args.nudge is not None 
+    if args.nudge is not None: 
         if args.nudge > args.n_edo:
             raise ValueError("The degree that gets nudged must be less than the specified N-EDO.")
         elif args.nudge == 0:
@@ -140,7 +154,8 @@ if __name__ == '__main__':
     n_edo = args.n_edo 
     generators = [int(g) for g in args.generator_string.split(',')] 
     name = args.name 
-    print(f'N-EDO: {n_edo}, Generators: {generators}, Filename: {name}')
+    print(f'N-EDO: {n_edo}, Generators: {generators}, Filename: {name}.scl')
+    print('')
     print('degree, ratio, cents, error (cents from EDO)')
     neji_cents_list = get_neji(cents_from_edo(int(n_edo)), generators, nudge_degree = args.nudge, nudge_by = args.by)
     write_scala(name = name, cents_list = neji_cents_list)
