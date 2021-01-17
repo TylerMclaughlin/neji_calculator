@@ -1,4 +1,3 @@
-import argparse
 import numpy as np
 from itertools import chain, combinations
 from fractions import Fraction
@@ -20,7 +19,6 @@ def find_numerator(cents, denom):
     """
     return denom * 2 **(cents/1200)
 
-
 def powerset(iterable):
     "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
     s = list(iterable)
@@ -29,7 +27,6 @@ def powerset(iterable):
 def expand_generators(generators):
     return [np.prod(x) for x in powerset(generators) if x != ()]
     
-
 def decimal(number):
     """
     Rounds string version of int to 6 decimal places for printing.
