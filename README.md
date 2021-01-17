@@ -10,7 +10,7 @@ NumPy Python module (tested on version 1.19.4)
 
 To calculate a NEJI tuning, you must provide the following three arguments:
 
-* the EDO you wish to approximate or "un-temper" with just intervals,
+* the EDO you wish to approximate or "un-temper" via just intervals,
 * a comma-separated list of 'generators':  the integers that can be used for the denominator of the just intervals.  No spaces allowed here!
 * a name for the generated .scl file.
 
@@ -42,7 +42,7 @@ degree, ratio, cents, error (cents from EDO)
 14  59/31 1114.136087   -5.863913
 15      2 1200.000000    0.000000
 ```
-## Nudging degree in the scale.
+## Nudging a scale degree
 
 Nudging or tweaking a degree in the tuning can be useful for balancing or centering the tuning.  The following example is taken from [Zhea Erose's 'Eurybia'](https://www.youtube.com/watch?v=ubPwKxcp87g),  which uses 12-note undecimal tuning and has a raised fourth.  To nudge, specify the degree you wish to nudge (5 in this example) and by how much.  
 
