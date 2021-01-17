@@ -3,6 +3,7 @@ This is a command-line tool for calculating tuning tables and exporting Scala fi
 
 # Requirements
 Python 3 (tested on version 3.7.1)
+
 NumPy Python module (tested on version 1.19.4)
 
 # Usage
@@ -13,7 +14,7 @@ To calculate a NEJI tuning, you must provide the following three arguments:
 * a comma-separated list of 'generators':  the integers that can be used for the denominator of the just intervals.  No spaces allowed here!
 * a name for the generated .scl file.
 
-For example, to calculate the NEJI that approximates 15-EDO using just intervals and has 2, 31, and product combinations (i.e., 2*31 = 62) as the denominator, this is the command to run:
+For example, to calculate the NEJI that approximates 15-EDO using just intervals and has 2, 31, and product combinations (i.e., 2 x 31 = 62) as the denominator, this is the command to run:
 
 ```bash
 python neji_calculator.py 15 2,31 31_neji_15
@@ -43,15 +44,16 @@ degree, ratio, cents, error (cents from EDO)
 ```
 ## Nudging degree in the scale.
 
-Nudging a degree in the tuning may help with balancing the tuning.  To nudge, specify the degree you wish to nudge and by how much.
+Nudging or tweaking a degree in the tuning can be useful for balancing or centering the tuning.  The following example is taken from Zhea Erose's 'Eurybia',  which uses 12-note undecimal tuning and has a raised fourth.  To nudge, specify the degree you wish to nudge (5 in this example) and by how much.  
 
 ```bash
 python neji_calculator.py 12 2,11 eurybia --nudge 5 --by 1
 ```
-yields eurybia.scl and the following output:
-N-EDO: 12, Generators: [2, 11], Filename: eurybia.scl
+writes the Scala file **eurybia.scl** and prints the following output:
 
 ```
+N-EDO: 12, Generators: [2, 11], Filename: eurybia.scl
+
 degree, ratio, cents, error (cents from EDO)
  0     1    0.000000    0.000000
  1 23/22   76.956405  -23.043595
@@ -67,3 +69,4 @@ degree, ratio, cents, error (cents from EDO)
 11 21/11 1119.462965   19.462965
 12     2 1200.000000    0.000000
 ```
+The '--by' argument may be positive or negative.  It adjusts by increments of 1 divided by the product of all the generators (increments of 1/22 in this example).
