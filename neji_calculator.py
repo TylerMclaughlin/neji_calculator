@@ -40,12 +40,15 @@ def pad(string, max_len):
     string = str(string)
     return " "*(max_len - len(string)) + string
 
-def get_neji(edo_list, generators, print_all_approx = False, nudge_degree = None, nudge_by = 0): 
+def get_neji(edo_list, generators, print_all_approx = False, nudge_degree = None, nudge_by = 0, limit_generators = False): 
     """
     argument edo_list is a collection of notes (cents).
     generators is a list of numbers, usually primes.
     """
-    denoms = sorted(expand_generators(generators))
+    if limit_generators:
+        denoms = generators
+    else:    
+        denoms = sorted(expand_generators(generators))
     # I'm intentionally not using Pandas for this one;
     # trying to keep the dependency list small.
     # I'd love to use data tables instead of lists for this,
@@ -65,7 +68,6 @@ def get_neji(edo_list, generators, print_all_approx = False, nudge_degree = None
             best_matches.append(neji_cents)
             best_errors.append(error)
             best_fractions.append(Fraction(num, denom))
-
 
     # get max len for different substrings of the print out
     max_len_degree = len(str(len(edo_list) - 1))
@@ -144,6 +146,7 @@ if __name__ == '__main__':
     parser.add_argument("name", help="Name for the output .scl file.  Use underscores instead of spaces.", type = str)
     parser.add_argument("-n","--nudge", help="Tuning degree to nudge. Counting starts at zero.", type = int)
     parser.add_argument("-b","--by", help="Amount to nudge by. Increments of 1 divided by the largest generator product. May be negative", default = 0, type = int)
+    parser.add_argument("-l","--limit", help="Limit denominators to those listed -- that is, don't take the product.  Off by default.", const = True, default = False, action = 'store_const')
     args = parser.parse_args()
     if args.nudge is not None: 
         if args.nudge > args.n_edo:
@@ -156,5 +159,5 @@ if __name__ == '__main__':
     print(f'N-EDO: {n_edo}, Generators: {generators}, Filename: {name}.scl')
     print('')
     print('degree, ratio, cents, error (cents from EDO)')
-    neji_cents_list = get_neji(cents_from_edo(int(n_edo)), generators, nudge_degree = args.nudge, nudge_by = args.by)
+    neji_cents_list = get_neji(cents_from_edo(int(n_edo)), generators, nudge_degree = args.nudge, nudge_by = args.by, limit_generators = args.limit)
     write_scala(name = name, cents_list = neji_cents_list)
