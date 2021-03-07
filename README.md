@@ -71,3 +71,37 @@ degree, ratio, cents, error (cents from EDO)
 12     2 1200.000000    0.000000
 ```
 The '--by' argument may be positive or negative.  It adjusts by increments of 1 divided by the product of all the generators (increments of 1/22 in this example).
+
+
+## Getting finer control by explicitly constraining or 'limiting' the denominators
+
+In the above example, the output values in the denominators of the just ratios were 2, 11, and 22.  2 and 11 were specified as generators.  22, the product of 2 and 11, was added by default.  This product-taking default setting leads to closer approximations of the EDO scale.  What if we don't want that?  
+
+We can turn off the deafault product expansion of the denominators by using the `-l` or `--limit` argument. (This has nothing to do with N-limit just intonation.)   Here's an example with 5 different generators:
+
+```bash
+python neji_calculator.py -l 12 2,3,5,7,14 
+```
+
+```
+N-EDO: 12, Generators: [2, 3, 5, 7, 14], Filename: 12_neji_2-3-5-7-14_lim.scl
+
+degree, ratio, cents, error (cents from EDO)
+ 0     1    0.000000    0.000000
+ 1 15/14  119.442808   19.442808
+ 2   8/7  231.174094   31.174094
+ 3   6/5  315.641287   15.641287
+ 4   9/7  435.084095   35.084095
+ 5   4/3  498.044999   -1.955001
+ 6  10/7  617.487807   17.487807
+ 7   3/2  701.955001    1.955001
+ 8   8/5  813.686286   13.686286
+ 9   5/3  884.358713  -15.641287
+10 25/14 1003.801521    3.801521
+11  13/7 1071.701755  -28.298245
+12     2 1200.000000    0.000000
+``
+
+You can see that 2, 3, 5, 7, and 14 all occur on the denominator.  But 6, the product of 2 and 3, is missing, because it was not explicitly passed to the calculator.  Thus, should be able to see what the `-l` argument does -- it just limits the denominators to the ones explicitly passed.
+
+In general, limiting the denominators with the `-l` setting offers an alternative way to explore tunings in the space between JI and EDO.
