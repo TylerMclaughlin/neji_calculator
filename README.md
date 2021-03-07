@@ -77,7 +77,7 @@ The '--by' argument may be positive or negative.  It adjusts by increments of 1 
 
 In the above example, the output values in the denominators of the just ratios were 2, 11, and 22.  2 and 11 were specified as generators.  22, the product of 2 and 11, was added by default.  This product-taking default setting leads to closer approximations of the EDO scale.  What if we don't want that?  
 
-We can turn off the deafault product expansion of the denominators by using the `-l` or `--limit` argument. (This has nothing to do with N-limit just intonation.)   Here's an example with 5 different generators:
+We can turn off the default product expansion of the denominators by using the `-l` or `--limit` argument. (This has nothing to do with N-limit just intonation.)   Here's an example with 5 different generators:
 
 ```bash
 python neji_calculator.py -l 12 2,3,5,7,14 
@@ -100,7 +100,7 @@ degree, ratio, cents, error (cents from EDO)
 10 25/14 1003.801521    3.801521
 11  13/7 1071.701755  -28.298245
 12     2 1200.000000    0.000000
-``
+```
 
 You can see that 2, 3, 5, 7, and 14 all occur on the denominator.  But 6, the product of 2 and 3, is missing, because it was not explicitly passed to the calculator.  Thus, should be able to see what the `-l` argument does -- it just limits the denominators to the ones explicitly passed.
 
