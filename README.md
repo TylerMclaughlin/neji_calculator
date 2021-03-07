@@ -75,9 +75,38 @@ The '--by' argument may be positive or negative.  It adjusts by increments of 1 
 
 ## Getting finer control by explicitly constraining or 'limiting' the denominators
 
-In the above example, the output values in the denominators of the just ratios were 2, 11, and 22.  2 and 11 were specified as generators.  22, the product of 2 and 11, was added by default.  This product-taking default setting leads to closer approximations of the EDO scale.  What if we don't want that?  
+In the above example, the output values in the denominators of the just ratios were 2, 11, and 22.  2 and 11 were specified as generators.  22, the product of 2 and 11, was added by default.  This product-taking default setting leads to closer approximations of the EDO scale.  
 
-We can turn off the default product expansion of the denominators by using the `-l` or `--limit` argument. (This has nothing to do with N-limit just intonation.)   Here's an example with 5 different generators:
+When you have many generators (5 here), 
+
+```
+python neji_calculator.py  12 2,3,5,7,14 basically_12_edo
+```
+the resulting scale has ratios with large numerators and denominators:
+
+```
+N-EDO: 12, Generators: [2, 3, 5, 7, 14], Filename: basically_12_edo.scl
+
+degree, ratio, cents, error (cents from EDO)
+ 0         1    0.000000    0.000000
+ 1     89/84  100.099210    0.099210
+ 2     55/49  199.979843   -0.020157
+ 3   874/735  299.866836   -0.133164
+ 4   926/735  399.921532   -0.078468
+ 5   327/245  499.810664   -0.189336
+ 6     99/70  600.088324    0.088324
+ 7   881/588  699.991037   -0.008963
+ 8 4667/2940  800.015175    0.015175
+ 9   412/245  899.835106   -0.164894
+10   873/490  999.839886   -0.160114
+11    185/98 1100.005940    0.005940
+12         2 1200.000000    0.000000
+```
+
+This is because it's taking the product of the generators.
+What if we don't want simpler ratios than this?  
+
+We can turn this product behavior off by using the `-l` or `--limit` argument. (This has nothing to do with N-limit just intonation.)   
 
 ```bash
 python neji_calculator.py -l 12 2,3,5,7,14 
@@ -101,7 +130,7 @@ degree, ratio, cents, error (cents from EDO)
 11  13/7 1071.701755  -28.298245
 12     2 1200.000000    0.000000
 ```
+This is a tidy scale with many familiar just intervals and no denominators are larger than 14.
+You can see that 2, 3, 5, 7, and 14 all occur on the denominator.  But the products are missing, because they were not explicitly passed to the calculator.    The exception in this example is 14, the product of 2 and 7, which occurs in the .scl file, but occurs because it was explicitly passed.
 
-You can see that 2, 3, 5, 7, and 14 all occur on the denominator.  But 6, the product of 2 and 3, is missing, because it was not explicitly passed to the calculator.  Thus, should be able to see what the `-l` argument does -- it just limits the denominators to the ones explicitly passed.
-
-In general, limiting the denominators with the `-l` setting offers an alternative way to explore tunings in the space between JI and EDO.
+In general, limiting the denominators with the `-l` setting offers an alternative way to explore tunings in the space between JI and EDO.  It is useful when you have many generators but don't want to super closely approximate the EDO.
